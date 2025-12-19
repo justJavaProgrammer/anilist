@@ -11,4 +11,9 @@ public final class HealthController {
     public String greeting(@RequestParam(value = "name", required = false, defaultValue = "World") final String name) {
         return "Hello " + name;
     }
+
+    @GetMapping("/health")
+    public String health() {
+        return "OK";
+    }
 }
