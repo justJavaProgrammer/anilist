@@ -1,23 +1,49 @@
 resource "google_cloud_run_v2_service" "default" {
-  name     = "cloudrun-srv"
-  location = "us-west1"
+  name                = "cloudrun-srv"
+  location            = "us-west1"
   deletion_protection = false
-  ingress = "INGRESS_TRAFFIC_ALL"
+  ingress             = "INGRESS_TRAFFIC_ALL"
+
+  depends_on = [google_sql_database_instance.postgres]
 
   scaling {
-    max_instance_count=1
+    max_instance_count = 1
   }
 
   template {
-      containers {
-        image = "us-docker.pkg.dev/cloudrun/container/hello"
-        resources {
-          limits = {
-            memory: "512Mi",
-            "cpu": "1"
-          }
+    vpc_access {
+      egress    = "PRIVATE_RANGES_ONLY"
+
+      network_interfaces {
+        network = data.google_compute_network.default.name
+        subnetwork = data.google_compute_network.default.name
+      }
+    }
+
+    containers {
+      env {
+        name = "DATASOURCE_USERNAME"
+        value = "developer"
+      }
+      env {
+        name = "DATASOURCE_PASSWORD"
+        value = "changeme"
+      }
+
+      env {
+        name = "DATASOURCE_URL"
+        value = "jdbc:postgresql://10.12.0.5:5432/animedb"
+      }
+
+      image = "us-west1-docker.pkg.dev/integral-zephyr-481413-k6/dev/anime-rest-api:2"
+
+      resources {
+        limits = {
+          memory : "512Mi",
+          "cpu" : "1"
         }
       }
+    }
   }
 }
 
