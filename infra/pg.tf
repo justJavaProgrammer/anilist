@@ -3,6 +3,10 @@ data "google_compute_network" "default" {
   name = "default"
 }
 
+data "google_compute_subnetwork" "default" {
+  name = "default"
+}
+
 resource "google_sql_database_instance" "postgres" {
   name                = "anime"
   database_version    = "POSTGRES_15"
@@ -29,10 +33,4 @@ resource "google_sql_database_instance" "postgres" {
 resource "google_sql_database" "database" {
   name     = "animedb"
   instance = google_sql_database_instance.postgres.name
-}
-
-resource "google_sql_user" "users" {
-  name     = "developer"
-  instance = google_sql_database_instance.postgres.name
-  password = "changeme"
 }
