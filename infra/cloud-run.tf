@@ -45,7 +45,7 @@ resource "google_cloud_run_v2_service" "default" {
         value = "jdbc:postgresql://${google_sql_database_instance.postgres.private_ip_address}/animedb"
       }
 
-      image = "us-west1-docker.pkg.dev/integral-zephyr-481413-k6/dev/anime-rest-api:2"
+      image = "us-west1-docker.pkg.dev/integral-zephyr-481413-k6/dev/anime-rest-api:4"
 
       resources {
         limits = {
