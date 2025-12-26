@@ -25,6 +25,11 @@ public class Anime {
     @Column(name = "description")
     String description;
 
+    public Anime(final String name, final String description) {
+        this.name = name;
+        this.description = description;
+    }
+
     @Override
     public final boolean equals(final Object o) {
         if ( this == o ) return true;
