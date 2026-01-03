@@ -6,9 +6,9 @@ on:
       - master
 
 jobs:
-  test:
+  provision:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Hello world
-        run: echo "hello world"
+      - name: Build
+        run: ./gradlew build -x test
