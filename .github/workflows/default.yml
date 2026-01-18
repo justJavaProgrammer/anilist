@@ -51,11 +51,19 @@ jobs:
     needs: provision
     steps:
       - uses: actions/checkout@v4
+      - name: Google Auth
+        id: auth
+        uses: 'google-github-actions/auth@v2'
+        with:
+          token_format: 'access_token'
+          project_id: ${{ env.PROJECT_ID }}
+          service_account: ${{ env.SERVICE_ACCOUNT }}
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
       - name: Deploy
         run: |
               gcloud run deploy anilist \
                 --region us-west1 \
-                --project ${{ env.PROJECT_ID }}
+                --project ${{ env.PROJECT_ID }} \
                 --image us-west1-docker.pkg.dev/project/dev/anime-rest-api:${{ github.sha }} \
                 --set-secrets "DATASOURCE_USERNAME=db-username:latest,DATASOURCE_PASSWORD=db-password:latest" \
                 --quiet
