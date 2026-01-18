@@ -63,12 +63,12 @@ jobs:
           service_account: ${{ env.SERVICE_ACCOUNT }}
           workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
       - name: Image name
-        run:  echo "us-west1-docker.pkg.dev/project/dev/anime-rest-api:${{ github.sha }}"
+        run:  echo "${{ env.AR_URL }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
       - name: Deploy
         run: |
               gcloud run deploy anilist \
                 --region us-west1 \
                 --project ${{ env.PROJECT_ID }} \
-                --image us-west1-docker.pkg.dev/project/dev/anime-rest-api:${{ github.sha }} \
+                --image "${{ env.AR_URL }}/${{ env.IMAGE_NAME }}:${{ github.sha }}" \
                 --set-secrets "DATASOURCE_USERNAME=db-username:latest,DATASOURCE_PASSWORD=db-password:latest" \
                 --quiet
