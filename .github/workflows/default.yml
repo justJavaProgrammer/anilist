@@ -44,3 +44,16 @@ jobs:
         run: |-
           docker build -t "${{ env.AR_URL }}/${{ env.IMAGE_NAME }}:${{ github.sha }}" ./
           docker push "${{ env.AR_URL }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+
+  deploy:
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy
+        run: |
+              gcloud run deploy anilist \
+                --region us-west1 \
+                --image us-west1-docker.pkg.dev/project/dev/anime-rest-api:${{ github.sha }} \
+                --set-secrets "DATASOURCE_USERNAME=db-username:latest,DATASOURCE_PASSWORD=db-password:latest" \
+                --quiet
