@@ -63,7 +63,7 @@ jobs:
           service_account: ${{ env.SERVICE_ACCOUNT }}
           workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
       - name: Image name
-        run:  us-west1-docker.pkg.dev/project/dev/anime-rest-api:${{ github.sha }}
+        run:  echo "us-west1-docker.pkg.dev/project/dev/anime-rest-api:${{ github.sha }}"
       - name: Deploy
         run: |
               gcloud run deploy anilist \
