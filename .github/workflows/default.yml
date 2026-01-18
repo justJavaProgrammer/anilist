@@ -48,6 +48,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: prod
+    needs: provision
     steps:
       - uses: actions/checkout@v4
       - name: Deploy
