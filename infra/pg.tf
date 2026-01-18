@@ -34,3 +34,12 @@ resource "google_sql_database" "database" {
   name     = "animedb"
   instance = google_sql_database_instance.postgres.name
 }
+
+# TODO: hardcoded user, should be changed.
+# Probably should use a default one OR
+# Create user using gcloud tool
+resource "google_sql_user" "dev" {
+  instance = google_sql_database_instance.postgres.name
+  name     = "developer"
+  password = "changeme"
+}
