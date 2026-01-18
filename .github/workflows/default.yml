@@ -49,6 +49,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: prod
     needs: provision
+    permissions:
+      contents: 'read'
+      id-token: 'write'
     steps:
       - uses: actions/checkout@v4
       - name: Google Auth
