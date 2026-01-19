@@ -1,7 +1,38 @@
 stages:
+  - lint
   - build
+  - test
+  - deploy-and-test
 
-build_job:
+dependencies:
+  stage: lint
+  script: echo "Checking dependencies for the project"
+
+java:
+  stage: lint
+  script: echo "Checking java checkstyle"
+
+migrations:
+  stage: lint
+  script: echo "Checking SQL migrations"
+
+terraform:
+  stage: lint
+  script: echo "Checking Terraform files"
+
+jar:
   stage: build
   script:
-    - echo "Hello World"
+    - echo "Building JAR with no tests"
+
+test:
+  stage: test
+  script:
+    - echo "Testing the application"
+
+
+e2e:
+  stage: deploy-and-test
+  script:
+    - echo "Deploy and test the application"
+
