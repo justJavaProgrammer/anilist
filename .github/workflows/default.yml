@@ -28,6 +28,8 @@ jobs:
       - name: Google Auth
         id: auth
         uses: ./.github/actions/gcp-auth
+      - name: "Debug"
+        run: echo ${{ steps.auth.outputs.access_token }}
       - name: Docker Auth
         id: docker-auth
         uses: 'docker/login-action@v1'
