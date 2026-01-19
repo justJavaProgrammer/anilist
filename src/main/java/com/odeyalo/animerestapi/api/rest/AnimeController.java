@@ -20,7 +20,7 @@ public class AnimeController {
         this.animeRepository = animeRepository;
     }
 
-    @GetMapping("/")
+    @GetMapping
     public List<Anime> getAnime() {
         return animeRepository.findAll();
     }

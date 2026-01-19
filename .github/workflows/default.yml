@@ -1,0 +1,40 @@
+name: default
+
+on:
+  pull_request:
+    branches:
+      - master
+
+env:
+  IMAGE_NAME: 'anilist'
+  PROJECT_ID: integral-zephyr-481413-k6
+  AR_REPO_LOCATION: 'us-west1'
+  AR_URL: 'us-west1-docker.pkg.dev/integral-zephyr-481413-k6/dev'
+  SERVICE_ACCOUNT: 'github-actions-service-account@integral-zephyr-481413-k6.iam.gserviceaccount.com'
+  WORKLOAD_IDENTITY_PROVIDER: 'projects/761028433156/locations/global/workloadIdentityPools/my-app-dev-pool/providers/github-actions-provider'
+
+jobs:
+  provision:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Change wrapper permissions
+        run: chmod +x ./gradlew
+      - name: Build
+        run: ./gradlew build -x test
+      - uses: ./.github/actions/gcp-auth
+      - uses: ./.github/actions/docker-push
+
+  deploy:
+    runs-on: ubuntu-latest
+    environment: prod
+    needs: provision
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    steps:
+      - uses: ./.github/actions/gcp-auth
+      - uses: ./.github/actions/gcp-deploy

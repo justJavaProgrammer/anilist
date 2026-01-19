@@ -1,0 +1,15 @@
+name: gcp-deploy
+description: Deploy the application to GCP
+
+runs:
+  using: "composite"
+  steps:
+    - name: Deploy
+      run: |
+        gcloud run deploy anilist \
+          --region us-west1 \
+          --project ${{ env.PROJECT_ID }} \
+          --image "${{ env.AR_URL }}/${{ env.IMAGE_NAME }}:${{ github.sha }}" \
+          --set-secrets "DATASOURCE_USERNAME=db-username:latest,DATASOURCE_PASSWORD=db-password:latest" \
+          --quiet
+      shell: bash

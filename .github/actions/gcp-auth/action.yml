@@ -1,0 +1,20 @@
+name: gcp-auth
+description: Google Authentication
+
+
+outputs:
+  access_token:
+    description: Access token
+    value: "${{ steps.auth.outputs.access_token }}"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Google Auth
+      id: auth
+      uses: 'google-github-actions/auth@v2'
+      with:
+        token_format: 'access_token'
+        project_id: ${{ env.PROJECT_ID }}
+        service_account: ${{ env.SERVICE_ACCOUNT }}
+        workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
