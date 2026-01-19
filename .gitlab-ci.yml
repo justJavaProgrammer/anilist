@@ -6,33 +6,40 @@ stages:
 
 dependencies:
   stage: lint
+  needs: []
   script: echo "Checking dependencies for the project"
 
 java:
   stage: lint
+  needs: []
   script: echo "Checking java checkstyle"
 
 migrations:
   stage: lint
+  needs: []
   script: echo "Checking SQL migrations"
 
 terraform:
   stage: lint
+  needs: []
   script: echo "Checking Terraform files"
 
 jar:
   stage: build
+  needs: []
   script:
     - echo "Building JAR with no tests"
 
 test:
   stage: test
+  needs: []
   script:
     - echo "Testing the application"
 
 
 e2e:
   stage: deploy-and-test
+  needs: []
   script:
     - echo "Deploy and test the application"
 
