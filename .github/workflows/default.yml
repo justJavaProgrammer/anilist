@@ -28,8 +28,6 @@ jobs:
       - name: Google Auth
         id: auth
         uses: ./.github/actions/gcp-auth
-      - name: "Debug"
-        run: echo ${{ steps.auth.outputs.access_token }}
       - name: Docker Auth
         id: docker-auth
         uses: 'docker/login-action@v1'
@@ -50,22 +48,5 @@ jobs:
       contents: 'read'
       id-token: 'write'
     steps:
-      - uses: actions/checkout@v4
-      - name: Google Auth
-        id: auth
-        uses: 'google-github-actions/auth@v2'
-        with:
-          token_format: 'access_token'
-          project_id: ${{ env.PROJECT_ID }}
-          service_account: ${{ env.SERVICE_ACCOUNT }}
-          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
-      - name: Image name
-        run:  echo "${{ env.AR_URL }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
-      - name: Deploy
-        run: |
-              gcloud run deploy anilist \
-                --region us-west1 \
-                --project ${{ env.PROJECT_ID }} \
-                --image "${{ env.AR_URL }}/${{ env.IMAGE_NAME }}:${{ github.sha }}" \
-                --set-secrets "DATASOURCE_USERNAME=db-username:latest,DATASOURCE_PASSWORD=db-password:latest" \
-                --quiet
+      - uses: ./.github/actions/gcp-auth
+      - uses: ./.github/actions/gcp-deploy
