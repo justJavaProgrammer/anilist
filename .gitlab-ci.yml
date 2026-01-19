@@ -47,6 +47,12 @@ e2e:
   script:
     - echo "Deploy and test the application"
 
+
+full:3h:
+  when: manual
+  stage: deploy-and-test
+  script: echo "Deploying the application to 3h cluster"
+
 cleanup:images:
   stage: .post
   script: echo "Cleaning up..."
