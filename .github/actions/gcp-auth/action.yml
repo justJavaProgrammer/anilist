@@ -12,3 +12,6 @@ runs:
         project_id: ${{ env.PROJECT_ID }}
         service_account: ${{ env.SERVICE_ACCOUNT }}
         workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+    - name: "Save"
+      run: echo "access_token=${{ steps.auth.outputs.access_token }}" >> "$GITHUB_OUTPUT"
+      shell: bash
