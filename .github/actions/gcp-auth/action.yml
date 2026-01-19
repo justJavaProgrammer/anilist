@@ -1,10 +1,14 @@
 name: gcp-auth
 description: Google Authentication
 
+
+outputs:
+  access_token:
+    description: Access token
+    value: "${{ steps.auth.outputs.access_token }}"
+
 runs:
   using: "composite"
-  outputs:
-    access_token: "${{ steps.auth.outputs.access_token }}"
   steps:
     - name: Google Auth
       id: auth
