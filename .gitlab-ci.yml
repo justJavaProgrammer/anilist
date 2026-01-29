@@ -9,15 +9,14 @@ include:
 
 api:jar:
   stage: build
-  image: openjdk:17-jdk-alpine
+  image: eclipse-temurin:17-jdk
   before_script:
-    - echo "Building JAR for API"
+    - chmod +x gradlew
   script:
-    - chmod +x ./gradlew
-    - ./gradlew build -x test --no-daemon
+    - ./gradlew clean build
   artifacts:
     paths:
-      - build/*
+      - build/libs/*.jar
 
 api:docker:image:
   variables:
