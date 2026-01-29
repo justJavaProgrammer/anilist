@@ -4,8 +4,16 @@ stages:
   - test
   - deploy-and-test
 
+variables:
+  GITLAB_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+
 include:
   - local: 'gcp-with-auth.gitlab-ci.yml'
+  - component: 'gitlab.com/google-gitlab-components/artifact-registry/upload-artifact-registry@0.1.0'
+    inputs:
+      stage: deploy
+      source: $GITLAB_IMAGE
+      target: "us-west1-docker.pkg.dev/integral-zephyr-481413-k6/dev/$GITLAB_IMAGE"
 
 api:jar:
   stage: build
@@ -19,8 +27,6 @@ api:jar:
       - build/libs/*.jar
 
 api:docker:image:
-  variables:
-    GITLAB_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
   image: docker:24.0.5-cli
   stage: build
   needs:
@@ -32,6 +38,7 @@ api:docker:image:
   script:
     - docker build -t $GITLAB_IMAGE .
     - docker push $GITLAB_IMAGE
+
 
 manual:full:3h:
   extends: .gcp-wif-auth
