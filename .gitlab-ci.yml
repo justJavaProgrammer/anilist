@@ -7,51 +7,20 @@ stages:
 include:
   - local: 'gcp-with-auth.gitlab-ci.yml'
 
-prepare:
-  stage: .pre
-  script: echo "Preparing..."
-
-dependencies:
-  stage: lint
-  needs: []
-  script: echo "Checking dependencies for the project"
-
-java:
-  stage: lint
-  needs: []
-  script: echo "Checking java checkstyle"
-
-migrations:
-  stage: lint
-  needs: []
-  script: echo "Checking SQL migrations"
-
-terraform:
-  stage: lint
-  needs: []
-  script: echo "Checking Terraform files"
-
-jar:
+api:docker:image:
+  variables:
+    GITLAB_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+  image: docker:24.0.5-cli
   stage: build
-  needs: []
+  services:
+    - docker:24.0.5-dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
-    - echo "Building JAR with no tests"
+    - docker build -t $GITLAB_IMAGE .
+    - docker push $GITLAB_IMAGE
 
-test:
-  stage: test
-  needs: []
-  script:
-    - echo "Testing the application"
-
-
-e2e:
-  stage: deploy-and-test
-  needs: []
-  script:
-    - echo "Deploy and test the application"
-
-
-full:3h:
+manual:full:3h:
   extends: .gcp-wif-auth
   when: manual
   stage: deploy-and-test
