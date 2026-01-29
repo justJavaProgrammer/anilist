@@ -1,0 +1,54 @@
+# This template provides a job to authenticate with GCP
+# using Workload Identity Federation for GitLab CI/CD.
+.gcp-wif-auth:
+  stage: gcp-wif-auth
+  image: google/cloud-sdk:slim
+  artifacts:
+    # Explicitly save the credential file for use by later jobs
+    paths:
+      - $GOOGLE_CREDENTIALS
+      - .gitlab-oidc-jwt
+  # This section tells GitLab to acquire an OIDC JWT token for the job.
+  # The 'aud' (audience) must match what your GCP Workload Identity Provider expects.
+  id_tokens:
+    GCP_OIDC_TOKEN: # The variable name that will hold the OIDC JWT
+      aud: "//iam.googleapis.com/${GCP_WI_PROVIDER_PATH}"
+  variables:
+    # Full resource path of your GCP Workload Identity Provider.
+    # Format: projects/<project-number>/locations/global/workloadIdentityPools/<pool-id>/providers/<provider-id>
+    GCP_WI_PROVIDER_PATH: "projects/761028433156/locations/global/workloadIdentityPools/gitlab/providers/gitlab-runner-provider"
+    # Email of the GCP Service Account to impersonate in the target GCP project
+    GCP_SERVICE_ACCOUNT_EMAIL: "gitlab-sa@integral-zephyr-481413-k6.iam.gserviceaccount.com"
+    # Optional: Explicitly set the target GCP Project ID.
+    # If not set, it will be extracted from GCP_SERVICE_ACCOUNT_EMAIL.
+    GCP_TARGET_PROJECT_ID: "integral-zephyr-481413-k6"
+    GOOGLE_CREDENTIALS: ".gcp_temp_cred.json"
+    TOKEN_LIFETIME: "3600"
+  before_script:
+    - echo "--- Starting GCP Workload Identity Authentication ---"
+    - if [ -z "$GCP_WI_PROVIDER_PATH" ]; then echo "Error-GCP_WI_PROVIDER_PATH is not set."; exit 1; fi;
+    - if [ -z "$GCP_SERVICE_ACCOUNT_EMAIL" ]; then echo "Error-GCP_SERVICE_ACCOUNT_EMAIL is not set."; exit 1; fi;
+    - |
+      if [ -z "$GCP_TARGET_PROJECT_ID" ]; then
+        GCP_TARGET_PROJECT_ID=$(echo "$GCP_SERVICE_ACCOUNT_EMAIL" | awk -F'@' '{print $2}' | awk -F'.' '{print $1}')
+        echo "Detected GCP_TARGET_PROJECT_ID-$GCP_TARGET_PROJECT_ID from SERVICE_ACCOUNT_EMAIL"
+      fi
+    - if [ -z "$GCP_TARGET_PROJECT_ID" ]; then echo "Error-GCP_TARGET_PROJECT_ID could not be determined."; exit 1; fi;
+    # Store the OIDC JWT in a temporary file for gcloud
+    - echo "${GCP_OIDC_TOKEN}" > "${CI_PROJECT_DIR}/.gitlab-oidc-jwt"
+    - unset GCP_OIDC_TOKEN # Unset the variable for security
+    # Configure gcloud to use Workload Identity Federation
+    # This command exchanges the GitLab OIDC JWT for a GCP federated token,
+    # which then impersonates the specified GCP service account.
+    - >
+      gcloud iam workload-identity-pools create-cred-config "${GCP_WI_PROVIDER_PATH}"
+      --service-account="${GCP_SERVICE_ACCOUNT_EMAIL}"
+      --output-file="${CI_PROJECT_DIR}/.gcp_temp_cred.json"
+      --credential-source-file="${CI_PROJECT_DIR}/.gitlab-oidc-jwt"
+    - gcloud auth login --cred-file="${CI_PROJECT_DIR}/.gcp_temp_cred.json"
+    - export GOOGLE_APPLICATION_CREDENTIALS="${CI_PROJECT_DIR}/.gcp_temp_cred.json"
+    - gcloud config set project "${GCP_TARGET_PROJECT_ID}"
+
+    - echo "--- GCP Authentication Successful! ---"
+    - gcloud auth list
+    - gcloud config list project

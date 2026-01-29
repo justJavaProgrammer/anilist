@@ -4,6 +4,9 @@ stages:
   - test
   - deploy-and-test
 
+include:
+  - local: 'gcp-with-auth.gitlab-ci.yml'
+
 prepare:
   stage: .pre
   script: echo "Preparing..."
@@ -49,6 +52,7 @@ e2e:
 
 
 full:3h:
+  extends: .gcp-wif-auth
   when: manual
   stage: deploy-and-test
   script: echo "Deploying the application to 3h cluster"
