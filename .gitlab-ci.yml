@@ -9,43 +9,46 @@ variables:
 
 include:
   - local: 'gcp-with-auth.gitlab-ci.yml'
-  - component: 'gitlab.com/google-gitlab-components/artifact-registry/upload-artifact-registry@0.1.0'
-    inputs:
-      stage: deploy-and-test
-      source: $GITLAB_IMAGE
-      target: "us-west1-docker.pkg.dev/integral-zephyr-481413-k6/dev/$GITLAB_IMAGE"
+#  - component: 'gitlab.com/google-gitlab-components/artifact-registry/upload-artifact-registry@0.1.0'
+#    inputs:
+#      stage: deploy-and-test
+#      source: $GITLAB_IMAGE
+#      target: "us-west1-docker.pkg.dev/integral-zephyr-481413-k6/dev/$GITLAB_IMAGE"
 
-api:jar:
+#api:jar:
+#  stage: build
+#  image: eclipse-temurin:17-jdk
+#  before_script:
+#    - chmod +x gradlew
+#  script:
+#    - ./gradlew clean build -x test
+#  artifacts:
+#    paths:
+#      - build/libs/*.jar
+#
+#api:docker:image:
+#  image: docker:24.0.5-cli
+#  stage: build
+#  needs:
+#    - api:jar
+#  services:
+#    - docker:24.0.5-dind
+#  before_script:
+#    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+#  script:
+#    - docker build -t $GITLAB_IMAGE .
+#    - docker push $GITLAB_IMAGE
+#
+
+list-images:
+  image: gcr.io/google.com/cloudsdktool/google-cloud-cli:466.0.0-alpine
+  identity: google_cloud
   stage: build
-  image: eclipse-temurin:17-jdk
-  before_script:
-    - chmod +x gradlew
   script:
-    - ./gradlew clean build -x test
-  artifacts:
-    paths:
-      - build/libs/*.jar
-
-api:docker:image:
-  image: docker:24.0.5-cli
-  stage: build
-  needs:
-    - api:jar
-  services:
-    - docker:24.0.5-dind
-  before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-  script:
-    - docker build -t $GITLAB_IMAGE .
-    - docker push $GITLAB_IMAGE
-
+    - gcloud artifacts docker images list $GOOGLE_ARTIFACT_REGISTRY_REPOSITORY_LOCATION-docker.pkg.dev/$GOOGLE_ARTIFACT_REGISTRY_PROJECT_ID/$GOOGLE_ARTIFACT_REGISTRY_REPOSITORY_NAME/app
 
 manual:full:3h:
   extends: .gcp-wif-auth
   when: manual
   stage: deploy-and-test
   script: echo "Deploying the application to 3h cluster"
-
-cleanup:images:
-  stage: .post
-  script: echo "Cleaning up..."
