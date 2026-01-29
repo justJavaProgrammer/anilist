@@ -7,18 +7,30 @@ stages:
 include:
   - local: 'gcp-with-auth.gitlab-ci.yml'
 
+api:jar:
+  stage: build
+  extends: openjdk:17
+  before_script:
+    - echo "Building JAR for API"
+  script:
+    - chmod +x ./gradlew
+    - ./gradlew build -x test --no-daemon
+  artifacts:
+    paths:
+      - build/*
+
 api:docker:image:
   variables:
     GITLAB_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
   image: docker:24.0.5-cli
   stage: build
+  needs:
+    - api:jar
   services:
     - docker:24.0.5-dind
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
-    - chmod +x ./gradlew
-    - ./gradlew build -x test --no-daemon
     - docker build -t $GITLAB_IMAGE .
     - docker push $GITLAB_IMAGE
 
