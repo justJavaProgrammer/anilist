@@ -9,7 +9,7 @@ include:
 
 api:jar:
   stage: build
-  image: openjdk:17
+  image: openjdk:17-jdk-alpine
   before_script:
     - echo "Building JAR for API"
   script:
