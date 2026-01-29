@@ -11,7 +11,7 @@ include:
   - local: 'gcp-with-auth.gitlab-ci.yml'
   - component: 'gitlab.com/google-gitlab-components/artifact-registry/upload-artifact-registry@0.1.0'
     inputs:
-      stage: deploy
+      stage: deploy-and-test
       source: $GITLAB_IMAGE
       target: "us-west1-docker.pkg.dev/integral-zephyr-481413-k6/dev/$GITLAB_IMAGE"
 
