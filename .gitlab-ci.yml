@@ -17,6 +17,7 @@ api:docker:image:
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
+    - ./gradlew build -x test --no-daemon
     - docker build -t $GITLAB_IMAGE .
     - docker push $GITLAB_IMAGE
 
